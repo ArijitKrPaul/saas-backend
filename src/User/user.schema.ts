@@ -21,6 +21,12 @@ export class User {
     default: null,
   })
   organisation_id: string;
+
+  @Prop({
+   
+    default:null
+   })
+  refreshToken:string
 }
 
 export type UserDocument = HydratedDocument<User>;
