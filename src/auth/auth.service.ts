@@ -13,7 +13,7 @@ export class AuthService {
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
     private jwtService: JwtService,
-    private configService:ConfigService
+    private configService: ConfigService,
   ) {}
 
   async signin(dto: SignInDto) {
@@ -32,30 +32,35 @@ export class AuthService {
       throw new ForbiddenException('Password Incorrect');
     }
 
-    
+    const refresh_token = await this.signRefreshToken(
+      existingUser._id.toString(),
+    );
 
-    const refresh_token = await this.signRefreshToken(existingUser._id.toString())
-    
-    const access_token = await this.signAccessToken(existingUser._id.toString(), existingUser.role, existingUser.organisation_id)
+    const access_token = await this.signAccessToken(
+      existingUser._id.toString(),
+      existingUser.role,
+      existingUser.organisation_id,
+    );
 
-    
-    
     const loggedInUser = await this.userModel
-      .findByIdAndUpdate(existingUser._id, {
-        $set: {
-          refreshToken:refresh_token.refreshToken,
-        }
-      },
+      .findByIdAndUpdate(
+        existingUser._id,
         {
-        returnDocument:'after'
-      }
-    ).select("-password -refreshToken");
-    
+          $set: {
+            refreshToken: refresh_token.refreshToken,
+          },
+        },
+        {
+          returnDocument: 'after',
+        },
+      )
+      .select('-password -refreshToken');
+
     return {
       user: loggedInUser,
       msg: 'user logged in successfully',
       access_token: access_token.accessToken,
-      refresh_token:refresh_token.refreshToken
+      refresh_token: refresh_token.refreshToken,
     };
   }
 
@@ -78,32 +83,36 @@ export class AuthService {
       msg: 'user created successfully',
     };
   }
- 
-  async signRefreshToken(userId: string) :Promise<{refreshToken:string}>{
-    const payload={
-      sub:userId
-    }
+
+  async signRefreshToken(userId: string): Promise<{ refreshToken: string }> {
+    const payload = {
+      sub: userId,
+    };
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: "30d",
-      secret:this.configService.get("REFRESH_TOKEN_SECRET")
-    })
+      expiresIn: '30d',
+      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+    });
 
-    return {refreshToken:refreshToken}
+    return { refreshToken: refreshToken };
   }
 
-  async signAccessToken(userId: string,role:string,orgId:string) :Promise<{accessToken:string}>{
-      const payload={
+  async signAccessToken(
+    userId: string,
+    role: string,
+    orgId: string,
+  ): Promise<{ accessToken: string }> {
+    const payload = {
       sub: userId,
       role: role,
-      organisationId:orgId
-      }
+      orgId: orgId,
+    };
 
-      const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: "15m",
-      secret:this.configService.get("ACCESS_TOKEN_SECRET")
-      })
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+      secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+    });
 
-      return {accessToken:accessToken}
+    return { accessToken: accessToken };
   }
 }

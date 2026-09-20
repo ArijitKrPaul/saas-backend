@@ -8,6 +8,9 @@ export class Organisation {
 
   @Prop({ required: true, lowercase: true })
   address: string;
+
+  @Prop({ required: true, unique: true, lowercase: true })
+  email: string;
 }
 
 export type OrganisationDocument = HydratedDocument<Organisation>;
