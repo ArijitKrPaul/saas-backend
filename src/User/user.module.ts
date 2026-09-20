@@ -14,8 +14,7 @@ import { UserService } from './user.service.js';
     ]),
   ],
   controllers: [UserController],
-  providers:[UserService],
+  providers: [UserService],
   exports: [MongooseModule],
-
 })
 export class UserModule {}
