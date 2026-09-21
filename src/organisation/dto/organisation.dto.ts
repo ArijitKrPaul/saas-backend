@@ -13,17 +13,3 @@ export class OrganisationDto {
   @IsString()
   address: string;
 }
-
-export class UserDto {
-  @IsString()
-  @IsNotEmpty()
-  sub: string;
-
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-}

@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../User/user.schema.js';
-import { OrganisationDto, UserDto } from './dto/organisation.dto.js';
+import { OrganisationDto } from './dto/organisation.dto.js';
 import { Organisation, OrganisationDocument } from './organisation.schema.js';
 
 @Injectable({})
@@ -13,7 +13,7 @@ export class OrganisationService {
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
   ) {}
-  async registerOrganisation(dto: OrganisationDto, user: UserDto) {
+  async registerOrganisation(dto: OrganisationDto, user: string) {
     const existingDepartment = await this.organisationModel.findOne({
       email: dto.email,
     });
@@ -30,11 +30,11 @@ export class OrganisationService {
 
     const existingUser = await this.userModel
       .findByIdAndUpdate(
-        user.sub.toString(),
+        user,
         {
           $set: {
             organisation_id: organistion._id,
-            role: 'ORG ADMIN',
+            role: 'ADMIN',
           },
         },
         {

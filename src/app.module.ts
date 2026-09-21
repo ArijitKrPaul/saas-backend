@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module.js';
 import { OrganistionModule } from './organisation/organisation.module.js';
+import { ProjectModule } from './project/project.module.js';
 import { UserModule } from './User/user.module.js';
 
 @Module({
@@ -10,6 +11,7 @@ import { UserModule } from './User/user.module.js';
     AuthModule,
     UserModule,
     OrganistionModule,
+    ProjectModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
