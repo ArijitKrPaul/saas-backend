@@ -39,7 +39,7 @@ export class AuthService {
     const access_token = await this.signAccessToken(
       existingUser._id.toString(),
       existingUser.role,
-      existingUser.organisation_id,
+      existingUser.organisation_id?.toString() as string,
     );
 
     const loggedInUser = await this.userModel

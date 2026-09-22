@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 
 @Schema()
 export class User {
@@ -20,12 +20,15 @@ export class User {
     ref: 'Organisation',
     default: null,
   })
-  organisation_id: string;
+  organisation_id: Types.ObjectId | null;
 
   @Prop({
     default: null,
   })
   refreshToken: string;
+
+  @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: 'Project' })
+  project_id: Types.ObjectId | null;
 }
 
 export type UserDocument = HydratedDocument<User>;

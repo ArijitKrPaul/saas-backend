@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 
 @Schema()
 export class Project {
@@ -10,7 +10,7 @@ export class Project {
   project_leader: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Organisation' })
-  deptId: string;
+  deptId: Types.ObjectId;
 
   @Prop({ required: true, default: 'Ongoing' })
   status: string;

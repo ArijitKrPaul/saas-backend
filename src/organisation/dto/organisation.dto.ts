@@ -13,3 +13,13 @@ export class OrganisationDto {
   @IsString()
   address: string;
 }
+
+export class InvitationDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+}

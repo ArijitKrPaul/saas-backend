@@ -35,6 +35,7 @@ export class ProjectService {
         {
           $set: {
             role: 'project_leader',
+            project_id: project._id,
           },
         },
         {
