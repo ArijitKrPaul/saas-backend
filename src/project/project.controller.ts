@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Roles } from '../auth/decorator/roles.decorator.js';
 import { GetUser } from '../auth/decorator/user.decorator.js';
 import { JwtGuard } from '../auth/guard/jwt.guard.js';
@@ -19,5 +19,12 @@ export class ProjectController {
     @GetUser('sub') user: string,
   ) {
     return this.projectService.addProject(dto, user, orgId);
+  }
+
+  @Get('all')
+  @Roles(['admin'])
+  @UseGuards(JwtGuard, RolesGuard)
+  getProjects(@GetUser('organisationId') orgId: string) {
+    return this.projectService.getProject(orgId);
   }
 }

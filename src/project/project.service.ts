@@ -49,4 +49,18 @@ export class ProjectService {
       project: project,
     };
   }
+
+  async getProject(orgId: string) {
+    //find projects related to that particular department
+    //return them
+
+    const project = await this.projectModel.find({
+      deptId: orgId,
+    });
+
+    return {
+      msg: 'all projects found',
+      projects: project,
+    };
+  }
 }

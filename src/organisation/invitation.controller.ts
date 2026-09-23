@@ -27,4 +27,12 @@ export class InvitationController {
   ) {
     return this.invitationService.sendInvitation(dto, orgId);
   }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('accept')
+  @Roles(['user'])
+  @UseGuards(JwtGuard, RolesGuard)
+  accept(@Body('token') dto: string, @GetUser('sub') userId: string) {
+    return this.invitationService.acceptInvitation(dto, userId);
+  }
 }

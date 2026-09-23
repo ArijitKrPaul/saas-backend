@@ -1,9 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { createHash, randomBytes } from 'crypto';
 import { Model } from 'mongoose';
 import { Resend } from 'resend';
+import { User, UserDocument } from '../User/user.schema.js';
 import { InvitationDto } from './dto/organisation.dto.js';
 import { Invitation, InvitationDocument } from './invitation.schema.js';
 
@@ -13,6 +18,8 @@ export class InvitationService {
   constructor(
     @InjectModel(Invitation.name)
     private invitationModel: Model<InvitationDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
     private configService: ConfigService,
   ) {
     this.resend = new Resend(this.configService.get('RESEND_API_KEY'));
@@ -70,6 +77,61 @@ export class InvitationService {
     return {
       token: tokenDB,
       msg: 'invitation sent successfully',
+    };
+  }
+
+  async acceptInvitation(token: string, userId: string) {
+    //hash the token again and search it
+    //check if it has expired or not
+    //if not expired fetch organisation id
+    //add organisation id to the user
+    //change role to member
+    //change the accepted boolean to true and check it as well before updating the records.
+
+    const hashToken = createHash('sha256').update(token).digest('hex');
+
+    const existingInvitation = await this.invitationModel.findOne({
+      tokenHash: hashToken,
+      accepted: false,
+    });
+
+    if (!existingInvitation) {
+      throw new ForbiddenException('Invalid Invitation');
+    }
+
+    const isExpired = new Date(Date.now()) > existingInvitation.expiresAt;
+
+    if (isExpired) {
+      throw new ForbiddenException('Invitation expired');
+    }
+    const existingUser = await this.userModel.findById(userId);
+
+    if (!existingUser) {
+      throw new ForbiddenException('No user found');
+    }
+
+    if (existingUser.email !== existingInvitation.email) {
+      throw new ForbiddenException(
+        'This mail was sent to a different email address',
+      );
+    }
+
+    existingUser.organisation_id = existingInvitation.organisationId;
+
+    existingUser.role = 'member';
+
+    await existingUser.save();
+
+    existingInvitation.accepted = true;
+
+    await existingInvitation.save();
+
+    const user = await this.userModel
+      .findById(userId)
+      .select('-password -refreshToken');
+
+    return {
+      user: user,
     };
   }
 }
