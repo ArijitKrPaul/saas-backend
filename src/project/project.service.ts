@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../User/user.schema.js';
-import { ProjectDto } from './dto/project.dto.js';
+import { MemberDto, ProjectDto } from './dto/project.dto.js';
 import { Project, ProjectDocument } from './project.schema.js';
 
 @Injectable()
@@ -15,6 +15,7 @@ export class ProjectService {
     @InjectModel(Project.name)
     private projectModel: Model<ProjectDocument>,
   ) {}
+
   async addProject(dto: ProjectDto, user: string, orgId: string) {
     const existingUser = await this.userMOdel.findById(user);
 
@@ -36,6 +37,7 @@ export class ProjectService {
           $set: {
             role: 'project_leader',
             project_id: project._id,
+            organisation_id: orgId,
           },
         },
         {
@@ -61,6 +63,37 @@ export class ProjectService {
     return {
       msg: 'all projects found',
       projects: project,
+    };
+  }
+
+  async addProjectMember(dto: MemberDto, orgId: string) {
+    //first check if project exists or not
+    //check if the project belongs to that particulat dept or not
+    //change the role of the selected user
+    //add project id to the user
+    //send feedback
+
+    const existingUser = await this.userMOdel.findById(dto.userid);
+
+    if (!existingUser) {
+      throw new ForbiddenException('User not found');
+    }
+
+    if (existingUser?.project_id?.toString() === dto.projectId) {
+      throw new ForbiddenException('User is already a part of the project');
+    }
+
+    existingUser.project_id = new Types.ObjectId(dto.projectId);
+    existingUser.role = 'project_member';
+    await existingUser.save();
+
+    const updatedUser = await this.userMOdel
+      .findById(dto.userid)
+      .select('-password -refreshToken');
+
+    return {
+      msg: 'project member added',
+      user: updatedUser,
     };
   }
 }

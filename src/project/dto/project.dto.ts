@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class ProjectDto {
   @IsString()
@@ -12,4 +13,12 @@ export class ProjectDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+}
+
+export class MemberDto {
+  @IsNotEmpty()
+  userid: string;
+
+  @IsNotEmpty()
+  projectId: Types.ObjectId | string;
 }
